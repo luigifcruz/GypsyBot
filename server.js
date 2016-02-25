@@ -67,6 +67,8 @@ var convert = {
 };
 
 var currencies = "Follow the example to convert USD to CAD:\n/cad 4 USD \n\nbtc - Bitcoin\nusd - US Dollar\neur - Euro\nrub - Russian Ruble\naud - Australian Dollar\nbgn - Bulgarian Lev\nbrl - Brazilian Real\ncad - Canadian Dollar\nchf - Swiss Franc\ncny - Chinese Yuan\nczk - Czech Republic Koruna\ndkk - Danish Krone\ngbp - British Pound\nhkd - Hong Kong Dollar\nhrk - Croatian Kuna\nhuf - Hungarian Forint\nidr - Indonesian Rupiah\ninr - Indian Rupee\njpy - Japanese Yen\nkrw - South Korean Won\nmxn - Mexican Peso\nmyr - Malaysian Ringgit\nnok - Norwegian Krone\nnzd - New Zealand Dollar\nphp - Philippine Peso\npln -  Polish Zloty\nron - Romanian Leu\nsek - Swedish Krona\nsgd - Singapore Dollar\nthb - Thai Baht\ntry - Turkish Lira\nzar - South African Rand";
+var help = "Commands available: \n/define [term] - Make a Urban Dictionary search looking for a definition.\n/isup [URL] - See if the website is online.\n/weathernow - Get the currently weather.\n/translate [sentence] - Translate any language to english.\n/list - Convert any currency.\n\nCommands for Brazil:\n/brliof - Converta USD para Real com IOF.\n/traduzir [frase] - Qualquer idioma para Português.";
+var acknowledgement = "The GypsyBot source code is available at [GitHub](https://github.com/luigifreitas/GypsyBot). Created by @luigifreitas :D";
 
 app.post('/webhook', function(req, res){
   res.send("Thanks!");
@@ -77,13 +79,12 @@ app.post('/webhook', function(req, res){
       var command = message[0];
 
       if (command == "/help" || command == "/help@GypsyBot" || command == "/start") {
-        reply(TelegramChatID, "Help!");
+        reply(TelegramChatID, help);
+        reply(TelegramChatID, acknowledgement);
       } else if (command == "/define" || command == "/define@GypsyBot") {
         gypsyDefine(TelegramChatID, req.body.message.text);
       } else if (command == "/isup" || command == "/isup@GypsyBot") {
         gypsyIsup(TelegramChatID, req.body.message.text);
-      } else if (command == "/pimp" || command == "/pimp@GypsyBot") {
-        reply(TelegramChatID, "Command coming soon!");
       } else if (command == "/weathernow" || command == "/weathernow@GypsyBot") {
         reply(TelegramChatID, "Sweet, reply this message with our location.");
       } else if (command == "/translate" || command == "/translate@GypsyBot") {
