@@ -74,7 +74,7 @@ app.post('/webhook', function(req, res){
   res.send("Thanks!");
   if (req.body.message != undefined) {
     var TelegramChatID = req.body.message.chat.id;
-    if (req.body.message.text != undefined) {
+    if (req.body.message.text != undefined && req.body.message.reply_to_message == undefined) {
       var message = req.body.message.text.split(" ");
       var command = message[0];
 
@@ -86,7 +86,7 @@ app.post('/webhook', function(req, res){
       } else if (command == "/isup" || command == "/isup@GypsyBot") {
         gypsyIsup(TelegramChatID, req.body.message.text);
       } else if (command == "/weathernow" || command == "/weathernow@GypsyBot") {
-        reply(TelegramChatID, "Sweet, reply this message with our location.");
+        reply(TelegramChatID, "Sweet, reply this message with our location or city name.");
       } else if (command == "/translate" || command == "/translate@GypsyBot") {
         gypsyTranslateEN(TelegramChatID, req.body.message.text);
       } else if (command == "/hue" || command == "/hue@GypsyBot") {
@@ -106,34 +106,29 @@ app.post('/webhook', function(req, res){
       var originalMessage = req.body.message.reply_to_message;
       var message = req.body.message;
 
-      if (originalMessage.text == "Sweet, reply this message with our location.") {
+      if (originalMessage.text == "Sweet, reply this message with our location or city name.") {
         if (message.location != undefined) {
           gypsyWeather(TelegramChatID, req.body.message.location);
+
         } else {
-          if (message.text.indexOf(',') != -1) {
 
-            while (message.text.indexOf(',') != -1) {
-              message.text = message.text.replace(',', '+'); 
-            }
-
-            while (message.text.indexOf(' ') != -1) {
-              message.text = message.text.replace(' ', '+');
-            }
-
-            while (message.text.indexOf('++') != -1) {
-              message.text = message.replace('++', '+');
-            }
-
-            
-            request('http://maps.googleapis.com/maps/api/geocode/json?address=' + message.text + '&sensor=false', function (err, data) {
-              if (!err && data.status != 'ZERO_RESULTS') {
-                var location = data.results[0].geometry.location;
-                gypsyWeather(TelegramChatID, {latitude: location.lat, longitude: location.lng});
-              }
-            });
+          var queryString = {
+            address:  message.text,
+            sensor: false
           }
-          //http://maps.googleapis.com/maps/api/geocode/json?address=Sao+Paulo+Brazil&sensor=false
-          //
+
+          request({url: "http://maps.googleapis.com/maps/api/geocode/json", qs: queryString}, function (err, body, data) {
+            var response = JSON.parse(data);
+            if (response.results != undefined) {
+              var location = response.results[0].geometry.location;
+              var address = response.results[0].formatted_address.split(" - ");
+
+              reply(TelegramChatID, "Here is the weather of " + address[0] + ".");
+              gypsyWeather(TelegramChatID, {latitude: location.lat, longitude: location.lng});
+            } else {
+              reply(TelegramChatID, "Ops, location not found. 😕");
+            }
+          });
         }
       }
     }
