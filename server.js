@@ -103,10 +103,38 @@ app.post('/webhook', function(req, res){
         gypsyCurrency(TelegramChatID, req.body.message.text.toUpperCase().split(" "));
       }
     } else if (req.body.message.reply_to_message != undefined) {
-      var message = req.body.message.reply_to_message.text;
+      var originalMessage = req.body.message.reply_to_message;
+      var message = req.body.message;
 
-      if (message == "Sweet, reply this message with our location." && req.body.message.location != undefined) {
-        gypsyWeather(TelegramChatID, req.body.message.location);
+      if (originalMessage.text == "Sweet, reply this message with our location.") {
+        if (message.location != undefined) {
+          gypsyWeather(TelegramChatID, req.body.message.location);
+        } else {
+          if (message.text.indexOf(',') != -1) {
+
+            while (message.text.indexOf(',') != -1) {
+              message.text = message.text.replace(',', '+'); 
+            }
+
+            while (message.text.indexOf(' ') != -1) {
+              message.text = message.text.replace(' ', '+');
+            }
+
+            while (message.text.indexOf('++') != -1) {
+              message.text = message.replace('++', '+');
+            }
+
+            
+            request('http://maps.googleapis.com/maps/api/geocode/json?address=' + message.text + '&sensor=false', function (err, data) {
+              if (!err && data.status != 'ZERO_RESULTS') {
+                var location = data.results[0].geometry.location;
+                gypsyWeather(TelegramChatID, {latitude: location.lat, longitude: location.lng});
+              }
+            });
+          }
+          //http://maps.googleapis.com/maps/api/geocode/json?address=Sao+Paulo+Brazil&sensor=false
+          //
+        }
       }
     }
   }
