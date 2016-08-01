@@ -17,7 +17,7 @@ var server = https.createServer({
 
 var forecast = new Forecast({
   service: 'forecast.io',
-  key: 'a5833b25fcb056bd99c62d5dca8712fd',
+  key: konfig.app.forecast,
   units: 'celcius',
   cache: true,
   ttl: {
@@ -340,4 +340,3 @@ function reply(TelegramChatID, Sentence) {
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
