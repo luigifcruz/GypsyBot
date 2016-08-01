@@ -1,0 +1,5 @@
+default:
+  port: 9000
+  yandex: 123
+  telegram: 123
+  forecast: 123

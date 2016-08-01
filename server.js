@@ -1,24 +1,23 @@
-var express = require('express'),
-app = express(),
-request = require('request'),
-https = require('https'),
-http = require('http'),
-fs = require('fs'),
-cookieParser = require('cookie-parser'),
-Forecast = require('forecast'),
-translate = require('yandex-translate')(""),
-bodyParser = require('body-parser');
-
-var BOT_AUTH = "";
+const konfig = require('konfig')({ path: "./" });
+const express = require('express');
+const app = express();
+const request = require('request');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
+const cookieParser = require('cookie-parser');
+const Forecast = require('forecast');
+const translate = require('yandex-translate')(konfig.app.yandex);
+const bodyParser = require('body-parser');
 
 var server = https.createServer({
    key: fs.readFileSync(__dirname + '/cert/key.pem'),
    cert: fs.readFileSync(__dirname + '/cert/cert.pem')
-}, app).listen(20003);
+}, app).listen(konfig.app.port);
 
 var forecast = new Forecast({
   service: 'forecast.io',
-  key: '',
+  key: 'a5833b25fcb056bd99c62d5dca8712fd',
   units: 'celcius',
   cache: true,
   ttl: {
@@ -30,6 +29,9 @@ var forecast = new Forecast({
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+console.log(`Server is up and running...`);
+console.log(`   Port:   ${konfig.app.port}`);
 
 var convert = {
   "USD": "US Dollar",
@@ -290,7 +292,7 @@ function replySticker(TelegramChatID, Path) {
     chat_id: TelegramChatID,
     sticker: fs.createReadStream(Path)
   };
-  request.post({url:'https://api.telegram.org/bot' + BOT_AUTH + '/sendSticker', formData: formData}, function(err, httpResponse, body){
+  request.post({url:'https://api.telegram.org/bot' + konfig.app.telegram + '/sendSticker', formData: formData}, function(err, httpResponse, body){
     var response = JSON.parse(body);
     if (!response.ok) {
       reply(TelegramChatID, "Sorry, something bad happend. 😞");
@@ -303,7 +305,7 @@ function replyImage(TelegramChatID, Path) {
     chat_id: TelegramChatID,
     photo: fs.createReadStream(Path)
   };
-  request.post({url:'https://api.telegram.org/bot' + BOT_AUTH + '/sendPhoto', formData: formData}, function(err, httpResponse, body){
+  request.post({url:'https://api.telegram.org/bot' + konfig.app.telegram + '/sendPhoto', formData: formData}, function(err, httpResponse, body){
     var response = JSON.parse(body);
     if (!response.ok) {
       replyFile(TelegramChatID, Path);
@@ -316,7 +318,7 @@ function replyFile(TelegramChatID, Path) {
     chat_id: TelegramChatID,
     document: fs.createReadStream(Path)
   };
-  request.post({url:'https://api.telegram.org/bot' + BOT_AUTH + '/sendDocument', formData: formData}, function(err, httpResponse,body){
+  request.post({url:'https://api.telegram.org/bot' + konfig.app.telegram + '/sendDocument', formData: formData}, function(err, httpResponse,body){
     var response = JSON.parse(body);
     if (!response.ok) {
       reply(TelegramChatID, "Sorry, something bad happend. 😞");
@@ -330,7 +332,7 @@ function reply(TelegramChatID, Sentence) {
     parse_mode: "Markdown",
     text: Sentence
   };
-  request.post({url:'https://api.telegram.org/bot' + BOT_AUTH + '/sendMessage', formData: formData});
+  request.post({url:'https://api.telegram.org/bot' + konfig.app.telegram + '/sendMessage', formData: formData});
 }
 
 // MARK: - Basic Functions.
@@ -338,3 +340,4 @@ function reply(TelegramChatID, Sentence) {
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
