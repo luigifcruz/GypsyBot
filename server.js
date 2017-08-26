@@ -1,8 +1,6 @@
 const konfig = require('konfig')({ path: "./" });
 const express = require('express');
-const app = express();
 const request = require('request');
-const https = require('https');
 const http = require('http');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
@@ -10,12 +8,9 @@ const Forecast = require('forecast');
 const translate = require('yandex-translate')(konfig.app.yandex);
 const bodyParser = require('body-parser');
 
-var server = https.createServer({
-   key: fs.readFileSync(__dirname + '/cert/key.pem'),
-   cert: fs.readFileSync(__dirname + '/cert/cert.pem')
-}, app).listen(konfig.app.port);
-
-var forecast = new Forecast({
+const app = express();
+const server = http.createServer(app).listen(konfig.app.port);
+const  forecast = new Forecast({
   service: 'forecast.io',
   key: konfig.app.forecast,
   units: 'celcius',

@@ -13,7 +13,6 @@
     "express": "^4.13.3",
     "forecast": "^0.2.1",
     "http": "0.0.0",
-    "https": "^1.0.0",
     "konfig": "^0.2.1",
     "request": "^2.69.0",
     "yandex-translate": "^2.1.0"
